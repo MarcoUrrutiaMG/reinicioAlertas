@@ -79,6 +79,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AlertsRepository\AlertsProcessRepository.cs" />
+    <Compile Include="Services\AlertProcessService.cs" />
     <Compile Include="Util\LogHelper.cs" />
     <Compile Include="Util\Utils.cs" />
   </ItemGroup>

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using static AlertReset.Entities.Statements;
 using AlertReset.Entities.AlertManagement;
 using AlertReset.Entities.AlertManagement.Response.ResponseControl;
+using AppBackground.Services;
 
 namespace AlertReset.Class
 {
@@ -23,7 +24,8 @@ namespace AlertReset.Class
             if (parameters != null && parameters.Count() > 0)
             {
                 AlertsProcessRepository repository = new AlertsProcessRepository();
-
+                new AlertProcessService().coincidencias();
+                return;
                 ExecuteProcess process = new ExecuteProcess()
                 {
                     PeriodId = parameters[0].ToString()
