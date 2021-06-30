@@ -197,6 +197,7 @@ namespace AlertReset.Repositories.AlertsRepository
                     Console.WriteLine("\n el NOMBRECOMPLETO: " + infoUser[i]["NOMBRECOMPLETO"]);
                     Console.WriteLine("\n el SNOMPERFIL: " + infoUser[i]["SNOMPERFIL"]);
                     Console.WriteLine("\n el NIDPERFIL: " + infoUser[i]["NIDPROFILE"]);
+                    
                     //Console.WriteLine("\n el NIDPERFIL: " + infoUser[i]["NIDPERFIL"]);
                     Console.WriteLine("\n el SCUERPO_CORREO: " + respCorreoCustom["SCUERPO_CORREO"]);
                     Console.WriteLine("\n el endDate: " + endDate);
@@ -519,11 +520,11 @@ namespace AlertReset.Repositories.AlertsRepository
                                 Dictionary<string, dynamic> item = new Dictionary<string, dynamic>();
                                 item["SEMAIL"] = reader["SEMAIL"] == DBNull.Value ? string.Empty : (reader["SEMAIL"].ToString()).ToLower();
                                 item["NOMBRECOMPLETO"] = reader["NOMBRECOMPLETO"] == DBNull.Value ? string.Empty : reader["NOMBRECOMPLETO"].ToString();
-                                item["SCARGO"] = reader["SNOMPERFIL"] == DBNull.Value ? string.Empty : reader["SNOMPERFIL"].ToString();
+                               // item["SCARGO"] = reader["SNOMPERFIL"] == DBNull.Value ? string.Empty : reader["SNOMPERFIL"].ToString();
                                 item["SNOMPERFIL"] = reader["SDESCARGO"] == DBNull.Value ? string.Empty : reader["SDESCARGO"].ToString();
-                                item["NIDPERFIL"] = reader["NIDPROFILE"] == DBNull.Value ? 0 : Int32.Parse(reader["NIDPROFILE"].ToString());
+                               // item["NIDPERFIL"] = reader["NIDPROFILE"] == DBNull.Value ? 0 : Int32.Parse(reader["NIDPROFILE"].ToString());
                                 item["NIDPROFILE"] = reader["NIDPROFILE"] == DBNull.Value ? 0 : Int32.Parse(reader["NIDPROFILE"].ToString());
-                                item["NIDGRUPOSENAL"] = reader["NIDGRUPOSENAL"] == DBNull.Value ? 0 : Int32.Parse(reader["NIDGRUPOSENAL"].ToString());
+                               // item["NIDGRUPOSENAL"] = reader["NIDGRUPOSENAL"] == DBNull.Value ? 0 : Int32.Parse(reader["NIDGRUPOSENAL"].ToString());
                                 item["SPERIODO_PROCESO"] = reader["SPERIODO_PROCESO"];
 
                                 complianceOfficerList.Add(item);
