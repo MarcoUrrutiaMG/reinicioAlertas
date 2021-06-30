@@ -24,7 +24,12 @@ namespace AlertReset.Class
             if (parameters != null && parameters.Count() > 0)
             {
                 AlertsProcessRepository repository = new AlertsProcessRepository();
-                new AlertProcessService().coincidencias();
+                //new AlertProcessService().coincidencias();
+
+                GlobalVariables gv2 = new GlobalVariables();
+                gv2.periodId = 20200999;
+                gv2.alertId = "2";
+                new AlertProcessService().WCCoincidencias(gv2);
                 return;
                 ExecuteProcess process = new ExecuteProcess()
                 {
@@ -77,6 +82,9 @@ namespace AlertReset.Class
                     {
                         try
                         {
+
+                            new AlertProcessService().WCCoincidencias(gv);
+
                             alertListOnLoad = repository.GetAlerts();
 
                             Console.WriteLine("\n el alertListOnLoad Count : " + alertListOnLoad.Count);
@@ -92,7 +100,7 @@ namespace AlertReset.Class
 
                             usersList = repository.GetProfileUsers();
 
-                            //repository.insertRescatesApi();
+                            repository.insertRescatesApi();
 
                             //repository.insertSiniestrosApi();
                 

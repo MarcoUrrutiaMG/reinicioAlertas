@@ -27,7 +27,7 @@ namespace AlertReset.Repositories.AlertsRepository
 {
     public class AlertsProcessRepository
     {
-        static string PackageInUse = "PKG_LAFT_GESTION_ALERTAS";
+        static string PackageInUse = "PKG_LAFT_IMPORTAR_DATA_WC1";
 
         List<Alerts> listClientInfo = new List<Alerts>();
 
@@ -128,6 +128,43 @@ namespace AlertReset.Repositories.AlertsRepository
             Console.Write("\nLista de usuario obtenida");
 
             return List;
+        }
+
+        internal List<string> GetListIndividues(int NTIPOCARGA)
+        {
+            List<string> Lista = new List<string>();
+            try
+            {
+                using (OracleConnection cn = new OracleConnection(ConfigurationManager.ConnectionStrings["Conexion"].ToString()))
+                {
+                    using (OracleCommand cmd = new OracleCommand())
+                    {
+                        IDataReader reader = null;
+                        cmd.Connection = cn;
+                        cmd.CommandText = string.Format("{0}.{1}", PackageInUse, "GET_LAFT_SEARCH_INDIVIDUES");
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("P_NTIPOCARGA", OracleDbType.Int32).Value = NTIPOCARGA;
+                        cmd.Parameters.Add("P_LISTA", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
+                        cn.Open();
+                        reader = cmd.ExecuteReader();
+                        if (reader != null)
+                        {
+                            while (reader.Read())
+                            {
+                                string item = reader["SNOM_COMPLETO"].ToString();
+                                Lista.Add(item);
+                            }
+                        }
+                        cn.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return Lista;
         }
 
         //Método para obtener la lista de correos

@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Diagnostics;
 using AlertReset.Repositories.AlertsRepository;
+using AlertReset.Entities.AlertManagement.Response.ResponseControl;
+using System.Net;
+using Newtonsoft.Json;
 
 namespace AppBackground.Services
 {
@@ -14,6 +17,7 @@ namespace AppBackground.Services
     {
         private string FolderSQL = "E:\\SqlCoincidencias";
         private AlertsProcessRepository _repository;
+        static int NTIPOCARGA = 1;
         public AlertProcessService()
         {
             _repository = new AlertsProcessRepository();
@@ -60,20 +64,71 @@ namespace AppBackground.Services
             };
             Guid idfile = Guid.NewGuid();
             using (FileStream fileBat = File.Open($"{FolderSQL}\\{idfile}.bat", FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                using (StreamWriter filaEscribeBat = new StreamWriter(fileBat))
                 {
-                    using (StreamWriter filaEscribeBat = new StreamWriter(fileBat))
-                    {
-                        filaEscribeBat.WriteLine(s.ToString());
-                        filaEscribeBat.Close();
-                        fileBat.Close();
-                    }
+                    filaEscribeBat.WriteLine(s.ToString());
+                    filaEscribeBat.Close();
+                    fileBat.Close();
                 }
+            }
             //ExecuteProcess($"{FolderSQL}\\{idfile}.bat", FolderSQL);
         }
         protected void ExecuteProcess(string RouteExe, string FolderSQL)
         {
             // EjecutaHilo();
             RunProcess(FolderSQL, RouteExe);
+        }
+
+        internal void WCCoincidencias(GlobalVariables gv)
+        {
+            List<string> items = _repository.GetListIndividues(NTIPOCARGA);
+            try
+            {
+                for (int i = 0; i < items.Count; i++)
+                {
+                    
+                    //Task.Run(async () =>
+                    //{
+                    var url = ConfigurationManager.AppSettings.Get("WC1Url").ToString(); ;
+                    Dictionary<string, string> item = new Dictionary<string, string>();
+                    item["name"] = items[i];
+                    item["alertId"] = gv.alertId;
+                    item["periodId"] = gv.periodId.ToString();
+                    item["tipoCargaId"] = NTIPOCARGA.ToString();
+                    string sRequest = JsonConvert.SerializeObject(item);
+                    byte[] byte1 = Encoding.UTF8.GetBytes(sRequest);
+                    int NLength = byte1.Length;
+                    var request = (HttpWebRequest)WebRequest.Create(url);
+                    request.Method = "POST";
+                    request.ContentType = "application/json";
+                    request.ContentLength = NLength;
+                    request.Headers.Add("Cache-Control", "no-cache");
+                    Stream newStream = request.GetRequestStream();
+                    newStream.Write(byte1, 0, NLength);
+                    try
+                    {
+                        using (HttpWebResponse response = (HttpWebResponse)request.GetResponseAsync().GetAwaiter().GetResult())
+                        {
+                            Stream Answer = response.GetResponseStream();
+                            StreamReader _Answer = new StreamReader(Answer);
+                            string jsontxt = _Answer.ReadToEnd();
+
+                        }
+                    }
+                    catch (WebException ex)
+                    {
+                        System.Console.WriteLine("error :" , ex.Message + " - " + items[i]);
+                    }
+
+                    //});
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         protected void RunProcess(string Directory, string FileName)
@@ -84,7 +139,8 @@ namespace AppBackground.Services
                 process.WaitForExit();
             }
         }
-        public StringBuilder prepareScript(parametro item) { 
+        public StringBuilder prepareScript(parametro item)
+        {
             StringBuilder script = new StringBuilder();
             script.AppendLine("DECLARE");
             script.AppendLine("V_NCODE NUMBER;");
