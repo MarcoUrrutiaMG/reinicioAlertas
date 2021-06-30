@@ -21,12 +21,13 @@ using static AlertReset.Entities.Statements;
 using AlertReset.Entities.AlertManagement;
 using AlertReset.Entities.AlertManagement.Response.ResponseControl;
 using Newtonsoft.Json;
+using AppBackground.Services;
 
 namespace AlertReset.Repositories.AlertsRepository
 {
     public class AlertsProcessRepository
     {
-        static string PackageInUse = "PKG_LAFT_GESTION_ALERTAS";
+        static string PackageInUse = "PKG_LAFT_IMPORTAR_DATA_WC1";
 
         List<Alerts> listClientInfo = new List<Alerts>();
 
@@ -80,6 +81,90 @@ namespace AlertReset.Repositories.AlertsRepository
 
             //return Pmessage;
             return objRespuesta;
+        }
+
+        internal List<AlertProcessService.parametro> GetListCoincidence()
+        {
+            //List<Users> usersList = new List<Users>();
+            List<AlertProcessService.parametro> List = new List<AlertProcessService.parametro>();
+
+            try
+            {
+                using (OracleConnection cn = new OracleConnection(ConfigurationManager.ConnectionStrings["ConexionTime"].ToString()))
+                {
+                    using (OracleCommand cmd = new OracleCommand())
+                    {
+                        cmd.Connection = cn;
+                        IDataReader reader = null;
+                        cmd.CommandText = string.Format("{0}.{1}", "PKG_BUSQ_COINCIDENCIAS_ALERTAS", "SP_GET_LISTA_COINCIDENCIAS");
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("P_CURSOR", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
+                        cn.Open();
+                        reader = cmd.ExecuteReader();
+
+                        if (reader != null)
+                        {
+                            while (reader.Read())
+                            {
+                                AlertProcessService.parametro item = new AlertProcessService.parametro();
+                                item.P_NPERIODO_PROCESO = reader["NPERIODO_PROCESO"] == DBNull.Value ? 0 : int.Parse(reader["NPERIODO_PROCESO"].ToString());
+                                item.P_NIDALERTA = reader["NIDALERTA"] == DBNull.Value ? 0 : int.Parse(reader["NIDALERTA"].ToString());
+                                item.P_NIDTIPOLISTA = reader["NIDTIPOLISTA"] == DBNull.Value ? 0 : int.Parse(reader["NIDTIPOLISTA"].ToString());
+                                item.P_SORIGENARCHIVO = reader["SORIGENARCHIVO"] == DBNull.Value ? string.Empty : reader["SORIGENARCHIVO"].ToString();
+                                item.P_NIDPROVEEDOR = reader["NIDPROVEEDOR"] == DBNull.Value ? 0 : int.Parse(reader["NIDPROVEEDOR"].ToString());
+                                item.P_NTIPOCARGA = reader["NTIPOCARGA"] == DBNull.Value ? 0 : int.Parse(reader["NTIPOCARGA"].ToString());
+                                List.Add(item);
+                            }
+                        }
+                        cn.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Write("\n El error : " + ex);
+                throw ex;
+            }
+            Console.Write("\nLista de usuario obtenida");
+
+            return List;
+        }
+
+        internal List<string> GetListIndividues(int NTIPOCARGA)
+        {
+            List<string> Lista = new List<string>();
+            try
+            {
+                using (OracleConnection cn = new OracleConnection(ConfigurationManager.ConnectionStrings["Conexion"].ToString()))
+                {
+                    using (OracleCommand cmd = new OracleCommand())
+                    {
+                        IDataReader reader = null;
+                        cmd.Connection = cn;
+                        cmd.CommandText = string.Format("{0}.{1}", PackageInUse, "GET_LAFT_SEARCH_INDIVIDUES");
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("P_NTIPOCARGA", OracleDbType.Int32).Value = NTIPOCARGA;
+                        cmd.Parameters.Add("P_LISTA", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
+                        cn.Open();
+                        reader = cmd.ExecuteReader();
+                        if (reader != null)
+                        {
+                            while (reader.Read())
+                            {
+                                string item = reader["SNOM_COMPLETO"].ToString();
+                                Lista.Add(item);
+                            }
+                        }
+                        cn.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return Lista;
         }
 
         //Método para obtener la lista de correos
