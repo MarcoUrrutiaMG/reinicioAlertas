@@ -15,7 +15,7 @@ namespace AppBackground.Services
 {
     class AlertProcessService
     {
-        private string FolderSQL = "E:\\SqlCoincidencias";
+        private string FolderSQL = "C:\\SqlCoincidencias";
         private AlertsProcessRepository _repository;
         static int NTIPOCARGA = 1;
         public AlertProcessService()
@@ -23,7 +23,7 @@ namespace AppBackground.Services
             _repository = new AlertsProcessRepository();
         }
 
-        public void coincidencias()
+        public void coincidencias(int nPeriodoProceso)
         {
             string url = ConfigurationManager.ConnectionStrings["ConexionTime"].ToString();
             string[] options = url.Split(';');
@@ -31,7 +31,7 @@ namespace AppBackground.Services
             string password = options[1].Substring(options[1].IndexOf('=') + 1);
             string concexion = options[2].Substring(options[2].IndexOf('=') + 1);
             //procedimiento que alimente los archivos
-            List<parametro> items = _repository.GetListCoincidence();
+            List<parametro> items = _repository.GetListCoincidence(nPeriodoProceso);
             //List<parametro> items = new List<parametro>();
             //items.Add(
             //    new parametro()
@@ -72,7 +72,7 @@ namespace AppBackground.Services
                     fileBat.Close();
                 }
             }
-            //ExecuteProcess($"{FolderSQL}\\{idfile}.bat", FolderSQL);
+            ExecuteProcess($"{FolderSQL}\\{idfile}.bat", FolderSQL);
         }
         protected void ExecuteProcess(string RouteExe, string FolderSQL)
         {
@@ -146,15 +146,14 @@ namespace AppBackground.Services
             script.AppendLine("V_NCODE NUMBER;");
             script.AppendLine("V_SMESSAGE VARCHAR2(2000);");
             script.AppendLine("BEGIN");
-            script.AppendLine($"PKG_BUSQ_COINCIDENCIAS_ALERTAS.SP_BUSQ_COINCIDENCIA_X_NOMBRE_(P_NPERIODO_PROCESO => {item.P_NPERIODO_PROCESO},");
-            script.AppendLine($"P_NIDALERTA => {item.P_NIDALERTA},");
+            script.AppendLine($"PKG_BUSQ_COINCIDENCIAS_ALERTAS.SP_BUSQ_COINCIDENCIA_X_NOMBRE(P_NPERIODO_PROCESO => {item.P_NPERIODO_PROCESO},");
+            script.AppendLine($"P_NIDALERTA => {2},");
+            script.AppendLine($"P_NIDGRUPOSENAL => 1,");
             script.AppendLine($"P_SORIGENARCHIVO => '{item.P_SORIGENARCHIVO}',");
             script.AppendLine($"P_NIDTIPOLISTA => {item.P_NIDTIPOLISTA},");
             script.AppendLine($"P_NIDPROVEEDOR => {item.P_NIDPROVEEDOR},");
             script.AppendLine($"P_SNOMCOMPLETO => null,");
             script.AppendLine($"P_NTIPOCARGA => {item.P_NTIPOCARGA},");
-            script.AppendLine($"P_SCLIENT => null,");
-            script.AppendLine($"P_NENCONTRO_COINC_ND => {0},");
             script.AppendLine("P_NCODE => V_NCODE,");
             script.AppendLine("P_SMESSAGE => V_SMESSAGE);");
             script.AppendLine("IF V_NCODE = 1 THEN");

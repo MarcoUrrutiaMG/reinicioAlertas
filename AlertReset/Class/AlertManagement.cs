@@ -24,18 +24,11 @@ namespace AlertReset.Class
             if (parameters != null && parameters.Count() > 0)
             {
                 AlertsProcessRepository repository = new AlertsProcessRepository();
-                //new AlertProcessService().coincidencias();
 
-                GlobalVariables gv2 = new GlobalVariables();
-                gv2.periodId = 20200999;
-                gv2.alertId = "2";
-                new AlertProcessService().WCCoincidencias(gv2);
-                return;
                 ExecuteProcess process = new ExecuteProcess()
                 {
                     PeriodId = parameters[0].ToString()
                 };
-
                 string directory = ConfigurationManager.AppSettings.Get("FtpRoute").ToString();
 
                 var fileCTL = ConfigurationManager.AppSettings.Get("CTLFile");
@@ -90,6 +83,13 @@ namespace AlertReset.Class
                             Console.WriteLine("\n el alertListOnLoad Count : " + alertListOnLoad.Count);
 
                             repository.GetClientInfo(gv.alertId, gv.periodId, gv.processStartDate, gv.processEndDate, alertListOnLoad);
+                            
+                            //   procesos para cargar archivos .bat
+                            //new AlertProcessService().coincidencias(gv.periodId);
+                            // proceso para actualizar datos de worldcheckone
+                            ///new AlertProcessService().WCCoincidencias(gv);
+                            //new AlertProcessService().coincidencias();
+
 
                             Dictionary<string, dynamic> respInsertUseForm = repository.InsertUserForm(gv.alertId, gv.periodId);
 

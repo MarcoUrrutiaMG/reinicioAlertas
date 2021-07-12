@@ -27,7 +27,7 @@ namespace AlertReset.Repositories.AlertsRepository
 {
     public class AlertsProcessRepository
     {
-        static string PackageInUse = "PKG_LAFT_IMPORTAR_DATA_WC1";
+        static string PackageInUse = "PKG_LAFT_GESTION_ALERTAS";
 
         List<Alerts> listClientInfo = new List<Alerts>();
 
@@ -83,7 +83,7 @@ namespace AlertReset.Repositories.AlertsRepository
             return objRespuesta;
         }
 
-        internal List<AlertProcessService.parametro> GetListCoincidence()
+        internal List<AlertProcessService.parametro> GetListCoincidence(int nPeriodoProceso)
         {
             //List<Users> usersList = new List<Users>();
             List<AlertProcessService.parametro> List = new List<AlertProcessService.parametro>();
@@ -98,6 +98,7 @@ namespace AlertReset.Repositories.AlertsRepository
                         IDataReader reader = null;
                         cmd.CommandText = string.Format("{0}.{1}", "PKG_BUSQ_COINCIDENCIAS_ALERTAS", "SP_GET_LISTA_COINCIDENCIAS");
                         cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("P_NPERIODO_PROCESO", OracleDbType.Int32).Value = nPeriodoProceso;
                         cmd.Parameters.Add("P_CURSOR", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
                         cn.Open();
                         reader = cmd.ExecuteReader();
@@ -108,7 +109,6 @@ namespace AlertReset.Repositories.AlertsRepository
                             {
                                 AlertProcessService.parametro item = new AlertProcessService.parametro();
                                 item.P_NPERIODO_PROCESO = reader["NPERIODO_PROCESO"] == DBNull.Value ? 0 : int.Parse(reader["NPERIODO_PROCESO"].ToString());
-                                item.P_NIDALERTA = reader["NIDALERTA"] == DBNull.Value ? 0 : int.Parse(reader["NIDALERTA"].ToString());
                                 item.P_NIDTIPOLISTA = reader["NIDTIPOLISTA"] == DBNull.Value ? 0 : int.Parse(reader["NIDTIPOLISTA"].ToString());
                                 item.P_SORIGENARCHIVO = reader["SORIGENARCHIVO"] == DBNull.Value ? string.Empty : reader["SORIGENARCHIVO"].ToString();
                                 item.P_NIDPROVEEDOR = reader["NIDPROVEEDOR"] == DBNull.Value ? 0 : int.Parse(reader["NIDPROVEEDOR"].ToString());
@@ -141,7 +141,7 @@ namespace AlertReset.Repositories.AlertsRepository
                     {
                         IDataReader reader = null;
                         cmd.Connection = cn;
-                        cmd.CommandText = string.Format("{0}.{1}", PackageInUse, "GET_LAFT_SEARCH_INDIVIDUES");
+                        cmd.CommandText = string.Format("{0}.{1}", "PKG_LAFT_IMPORTAR_DATA_WC1", "GET_LAFT_SEARCH_INDIVIDUES");
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("P_NTIPOCARGA", OracleDbType.Int32).Value = NTIPOCARGA;
                         cmd.Parameters.Add("P_LISTA", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
